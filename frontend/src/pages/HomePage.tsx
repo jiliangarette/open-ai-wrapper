@@ -1,3 +1,4 @@
+import MessageAI from "../components/ChatComponent";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/Avatar";
 
 const HomePage = () => {
@@ -13,6 +14,7 @@ const HomePage = () => {
         </Avatar>
         Hello world!
       </h1>
+      <MessageAI />
     </div>
   );
 };
