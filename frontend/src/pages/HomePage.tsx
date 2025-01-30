@@ -1,6 +1,6 @@
-import { Avatar, AvatarFallback, AvatarImage } from "./components/ui/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/Avatar";
 
-const App = () => {
+const HomePage = () => {
   return (
     <div className="flex flex-col place-items-center justify-center w-screen h-screen">
       <h1 className="text-slate-500 bg-slate-200 px-8 py-4 w-fit flex gap-2 place-items-center justify-center rounded-md">
@@ -16,4 +16,4 @@ const App = () => {
     </div>
   );
 };
-export default App;
+export default HomePage;
