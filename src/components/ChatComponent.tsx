@@ -37,7 +37,7 @@ export default function MessageAI() {
           </h2>
 
           {/* Mock conversation */}
-          <div className="w-full max-w-xl border-t max-h-[380px] overflow-y-scroll space-y-3 p-2">
+          <div className="w-full max-w-xl border-t max-h-[380px] overflow-y-scroll space-y-3 p-2 h-full">
             {/* User message */}
             <div className="flex justify-end">
               <div className="bg-primary text-primary-foreground rounded-lg px-4 py-2 max-w-[80%]">
