@@ -4,36 +4,40 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "../../lib/utils";
 
+interface PlaceholdersAndVanishInputProps {
+  placeholders: string[];
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSend?: (message: string) => void;
+}
+
 export function PlaceholdersAndVanishInput({
   placeholders,
   onChange,
   onSubmit,
-}: {
-  placeholders: string[];
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-}) {
+  onSend,
+}: PlaceholdersAndVanishInputProps) {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
-
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
   const startAnimation = () => {
     intervalRef.current = setInterval(() => {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
     }, 3000);
   };
+
   const handleVisibilityChange = () => {
     if (document.visibilityState !== "visible" && intervalRef.current) {
-      clearInterval(intervalRef.current); // Clear the interval when the tab is not visible
+      clearInterval(intervalRef.current);
       intervalRef.current = null;
     } else if (document.visibilityState === "visible") {
-      startAnimation(); // Restart the interval when the tab becomes visible
+      startAnimation();
     }
   };
 
   useEffect(() => {
     startAnimation();
     document.addEventListener("visibilitychange", handleVisibilityChange);
-
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -128,10 +132,10 @@ export function PlaceholdersAndVanishInput({
         if (ctx) {
           ctx.clearRect(pos, 0, 800, 800);
           newDataRef.current.forEach((t) => {
-            const { x: n, y: i, r: s, color: color } = t;
-            if (n > pos) {
+            const { x, y, r, color } = t;
+            if (x > pos) {
               ctx.beginPath();
-              ctx.rect(n, i, s, s);
+              ctx.rect(x, y, r, r);
               ctx.fillStyle = color;
               ctx.strokeStyle = color;
               ctx.stroke();
@@ -159,8 +163,8 @@ export function PlaceholdersAndVanishInput({
     setAnimating(true);
     draw();
 
-    const value = inputRef.current?.value || "";
-    if (value && inputRef.current) {
+    const currentValue = inputRef.current?.value || "";
+    if (currentValue && inputRef.current) {
       const maxX = newDataRef.current.reduce(
         (prev, current) => (current.x > prev ? current.x : prev),
         0
@@ -171,9 +175,17 @@ export function PlaceholdersAndVanishInput({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Grab the current value before starting the vanish animation.
+    const currentValue = inputRef.current?.value || "";
     vanishAndSubmit();
+    // Pass the message up to the parent.
+    if (onSend) {
+      onSend(currentValue);
+    }
+    // Also call any onSubmit provided.
     onSubmit && onSubmit(e);
   };
+
   return (
     <form
       className={cn(
@@ -183,7 +195,7 @@ export function PlaceholdersAndVanishInput({
       onSubmit={handleSubmit}>
       <canvas
         className={cn(
-          "absolute pointer-events-none  text-base transform scale-50 top-[20%] left-2 sm:left-8 origin-top-left filter invert dark:invert-0 pr-20",
+          "absolute pointer-events-none text-base transform scale-50 top-[20%] left-2 sm:left-8 origin-top-left filter invert dark:invert-0 pr-20",
           !animating ? "opacity-0" : "opacity-100"
         )}
         ref={canvasRef}
