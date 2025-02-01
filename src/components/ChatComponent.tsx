@@ -7,6 +7,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar";
 import { MessageCircle } from "lucide-react";
 import { Button } from "./ui/Button";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Message {
   role: "system" | "user" | "assistant";
@@ -125,8 +127,10 @@ export default function MessageAI() {
               <span key={index} className="flex flex-col gap-2">
                 {msg.role === "user" ? (
                   <div className="flex justify-end">
-                    <div className="bg-primary text-primary-foreground rounded-lg px-4 py-2 max-w-[80%]">
-                      {msg.content}
+                    <div className="chat-message-content bg-primary text-primary-foreground rounded-lg px-4 py-2 max-w-[80%]">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.content}
+                      </ReactMarkdown>
                     </div>
                   </div>
                 ) : (
@@ -135,8 +139,10 @@ export default function MessageAI() {
                       <AvatarImage src="/placeholder.svg" alt="Jilian" />
                       <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
-                    <div className="bg-muted rounded-lg px-4 py-2 max-w-[80%]">
-                      {msg.content}
+                    <div className="chat-message-content bg-muted rounded-lg px-4 py-2 max-w-[80%]">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.content}
+                      </ReactMarkdown>
                     </div>
                   </div>
                 )}
