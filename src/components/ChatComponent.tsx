@@ -8,16 +8,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar";
 import { MessageCircle } from "lucide-react";
 import { Button } from "./ui/Button";
 
+interface Message {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
 export default function MessageAI() {
   const [assistant, setAssistant] = useState<string | null>(null);
   const [assistantData, setAssistantData] = useState<string | null>(null);
-  const [messages, setMessages] = useState<{ role: string; content: string }[]>(
-    []
-  );
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Ref for conversation container
   const conversationRef = useRef<HTMLDivElement>(null);
 
   const fetchAssistantData = async () => {
@@ -47,7 +48,6 @@ export default function MessageAI() {
     fetchAssistantData();
   }, []);
 
-  // Effect to scroll conversation container to the bottom when messages update
   useEffect(() => {
     if (conversationRef.current) {
       conversationRef.current.scrollTop = conversationRef.current.scrollHeight;
@@ -57,7 +57,10 @@ export default function MessageAI() {
   const sendMessage = async (message: string) => {
     if (!message.trim() || !assistantData) return;
 
-    const newMessages = [...messages, { role: "user", content: message }];
+    const newMessages: Message[] = [
+      ...messages,
+      { role: "user", content: message },
+    ];
     setMessages(newMessages);
 
     try {
@@ -71,15 +74,21 @@ export default function MessageAI() {
         messages: [
           {
             role: "system",
-            content: `You are ${assistant}, a friendly assistant acting like Jilian. Respond as if you are talking to a high school student. And here is your data: ${assistantData}`,
+            content: `You are ${
+              assistant ?? ""
+            }, a friendly assistant acting like Jilian. Respond as if you are talking to a high school student. And here is your data: ${assistantData}`,
           },
           ...newMessages,
         ],
       });
 
+      const assistantReply =
+        completion.choices[0].message.content ??
+        "Sorry, I couldn't generate a response.";
+
       setMessages([
         ...newMessages,
-        { role: "assistant", content: completion.choices[0].message.content },
+        { role: "assistant", content: assistantReply },
       ]);
     } catch (error) {
       console.error("Error fetching OpenAI response:", error);
@@ -109,8 +118,6 @@ export default function MessageAI() {
               Ask Jilian Anything
             </h2>
           )}
-
-          {/* Conversation display */}
           <div
             ref={conversationRef}
             className="w-full max-w-xl max-h-[420px] overflow-y-scroll space-y-3 p-2 h-full">
@@ -136,7 +143,6 @@ export default function MessageAI() {
               </span>
             ))}
           </div>
-
           {loading && <p>Loading...</p>}
           {error && <p className="text-red-500">{error}</p>}
           <div className="w-full h-[40px] px-4">
